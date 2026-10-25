@@ -5,6 +5,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versio
 
 ## [Unreleased]
 
+### Added
+- `orch history <command> [args...]`: past calls of a command from zsh, bash and fish history, with `-n`, `--json` and `--file`.
+
 ## [0.1.1] - 2026-10-25
 
 ### Added

@@ -93,7 +93,7 @@ func version() string {
 
 func Root() *cobra.Command {
 	root := &cobra.Command{Use: "orch", Short: "Inspect and uninstall CLI tools", SilenceUsage: true, Version: version()}
-	root.AddCommand(listCmd(), infoCmd(), uninstallCmd())
+	root.AddCommand(listCmd(), infoCmd(), uninstallCmd(), historyCmd())
 	return root
 }
 

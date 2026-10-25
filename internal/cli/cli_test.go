@@ -192,3 +192,79 @@ func must(t *testing.T, err error) {
 		t.Fatal(err)
 	}
 }
+
+func historyHome(t *testing.T, zsh string) {
+	t.Helper()
+	home := t.TempDir()
+	must(t, os.WriteFile(filepath.Join(home, ".zsh_history"), []byte(zsh), 0o600))
+	t.Setenv("HOME", home)
+	t.Setenv("HISTFILE", "")
+	t.Setenv("XDG_DATA_HOME", "")
+}
+
+const sampleHistory = ": 1700000000:0;git status\n" +
+	": 1700000100:0;git commit -m one\n" +
+	": 1700000200:0;ls\n" +
+	": 1700000300:0;FOO=1 git commit -m two\n" +
+	": 1700000400:0;make && git push\n"
+
+func TestHistoryFiltersAndLimits(t *testing.T) {
+	historyHome(t, sampleHistory)
+	out, err := run("history", "git")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Count(out, "git") < 4 || strings.Contains(out, "ls\n") {
+		t.Errorf("want 4 git calls only:\n%s", out)
+	}
+	out, _ = run("history", "git", "commit")
+	if !strings.Contains(out, "git commit -m one") || !strings.Contains(out, "FOO=1 git commit -m two") || strings.Contains(out, "git status") {
+		t.Errorf("args should narrow to commit:\n%s", out)
+	}
+	out, _ = run("history", "-n", "1", "git", "commit")
+	if strings.Contains(out, "one") || !strings.Contains(out, "two") {
+		t.Errorf("-n 1 should keep the newest only:\n%s", out)
+	}
+	if !strings.Contains(out, `showing 1 of 2 calls of "git commit"`) {
+		t.Errorf("footer missing:\n%s", out)
+	}
+}
+
+func TestHistoryArgsAreNotOrchFlags(t *testing.T) {
+	historyHome(t, ": 1700000000:0;ls -la\n: 1700000100:0;ls\n")
+	out, err := run("history", "ls", "-la")
+	if err != nil || !strings.Contains(out, "ls -la") {
+		t.Fatalf("err=%v out=%s", err, out)
+	}
+	if !strings.Contains(out, "showing 1 of 1 calls") {
+		t.Errorf("only `ls -la` should match:\n%s", out)
+	}
+}
+
+func TestHistoryJSONAndErrors(t *testing.T) {
+	historyHome(t, sampleHistory)
+	out, err := run("history", "--json", "ls")
+	if err != nil || !strings.Contains(out, `"line": "ls"`) || !strings.Contains(out, `"time"`) {
+		t.Errorf("err=%v out=%s", err, out)
+	}
+	if _, err := run("history", "nosuchcmd"); err == nil || !strings.Contains(err.Error(), "no calls of") {
+		t.Errorf("err=%v", err)
+	}
+	if _, err := run("history", "-n", "-1", "git"); err == nil {
+		t.Error("negative limit accepted")
+	}
+	t.Setenv("HOME", t.TempDir())
+	if _, err := run("history", "git"); err == nil || !strings.Contains(err.Error(), "no shell history files") {
+		t.Errorf("err=%v", err)
+	}
+}
+
+func TestHistoryFileFlag(t *testing.T) {
+	historyHome(t, "")
+	f := filepath.Join(t.TempDir(), "h")
+	must(t, os.WriteFile(f, []byte("echo hi\n"), 0o600))
+	out, err := run("history", "--file", f, "echo")
+	if err != nil || !strings.Contains(out, "echo hi") {
+		t.Errorf("err=%v out=%s", err, out)
+	}
+}

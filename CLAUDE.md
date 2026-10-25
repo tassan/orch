@@ -26,6 +26,7 @@ Pipeline: `scan` (PATH walk, records `Shadows`) -> `classify` (native/user + sou
 - `provider.Provider` interface (`Owner`, `Lookup`, `UninstallCmd`, `Available`) works on `Package` values: add new managers (cargo, npm...) in `internal/provider` and register in `All()`. Providers return an `*exec.Cmd`; the CLI owns dry-run/confirm/execution. `cli.providers` is a var so tests inject a fake.
 - Providers: brew, cargo (`$CARGO_HOME/.crates2.json`), npm (`/lib/node_modules/<pkg>`), pipx (`/pipx/venvs/<pkg>`). Go has no uninstall command, so it has no provider. Owner order in `All()` matters: brew claims `/Cellar/` paths first.
 - Brew ownership: formula from `.../Cellar/<formula>/...`; cask from `/Caskroom/<token>/` or from the `.app` bundle in the path, matched against `brew info --cask --json=v2 --installed` (loaded lazily, once, about 0.5s).
+- `history` (`internal/history`): parses zsh (extended, multiline, meta-escaped), bash (plain and `#ts`) and fish history; `Match` tokenizes a line (quotes, `| && ; ( )`) and checks each segment's first word after env assignments and wrappers. Independent of the inventory/provider code. `history.Flags().SetInterspersed(false)` so args after the command are not parsed as orch flags.
 - `uninstall` resolves its argument as a PATH command first, then as an installed package name, and lists the other PATH commands the package provides before confirming.
 
 ## Release

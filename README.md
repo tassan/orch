@@ -66,6 +66,7 @@ Tagged releases publish macOS binaries (amd64, arm64). They are not signed or no
 orch list [--native|--user] [--all] [--json]       # tools on PATH, with kind and source
 orch info <name> [--json] [--no-run]               # path, kind, owner, shadows, version, description
 orch uninstall <command|package> [--dry-run] [-y]  # via the owning package manager
+orch history [-n N] [--json] <command> [args...]    # past calls of a command, from your shell history
 orch --version
 ```
 
@@ -76,6 +77,13 @@ orch --version
 - Asks for confirmation unless you pass `-y`; `--dry-run` only prints the command.
 
 **Owners.** Homebrew (formulae and casks, matched to their `.app` bundle), cargo, global npm (including nvm) and pipx. Other tools still show a source guess (`nvm`, `asdf`, `mise`, `app`, `local`, `go`...), but `uninstall` only prints their path. `go install` binaries have no uninstall command, so they are never owned.
+
+**History**
+- `orch history git commit` lists past calls that start with `git commit`, oldest first (last 20 by default; `-n 0` for all). With no args it matches every call of the command.
+- Reads zsh, bash and fish history (`$HISTFILE`, `~/.zsh_history`, `~/.bash_history`, fish's `fish_history`), or files you pass with `--file`. Timestamps show when the shell recorded them.
+- Matches the command wherever one can start: after `FOO=1`, `sudo`, `time`, `env`, in pipelines and after `&&` or `;`. `echo git status` is not a call of `git`.
+- Put orch's own flags before the command: `orch history -n 5 ls -la` searches for `ls -la`.
+- Shells often write history only when they exit, so the current session may be missing. History can contain secrets typed on the command line; `orch` only prints it to your terminal.
 
 **What it sees**
 - `list --all` also scans well-known dirs that are not on `PATH` (`~/.cargo/bin`, `~/go/bin`, `~/.local/bin`, `~/.bun/bin`, `~/.deno/bin`, `~/.dotnet/tools`).

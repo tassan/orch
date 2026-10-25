@@ -15,12 +15,15 @@ Check it is installed with `command -v orch`. If missing: `brew install tassan/t
 orch list [--native|--user] [--all] [--json]
 orch info <name> [--json] [--no-run]
 orch uninstall <command|package> [--dry-run] [--yes]
+orch history [-n N] [--json] <command> [args...]
 ```
 
 - `list --json` returns an array of `{name, path, real, kind, source, package}`. Prefer it over the table when you need to filter or count. `kind` is `native` or `user`; `source` (user tools only) is the owning package manager when one is found (`brew`, `cargo`, `npm`, `pipx`), otherwise a path-based guess (`nvm`, `asdf`, `mise`, `app`, `local`, `go`, `manual`, `unknown`). `package` (`{provider, name, cask}`) is set only when a package manager owns the tool.
 - `info <name>` prints path, resolved path, kind, source, owner, shadows, version and a one-line description (`--json` for structured output). It runs `<name> --version` (2s timeout), which executes the tool; add `--no-run` for an untrusted binary.
 - `list --all` also scans `~/.cargo/bin`, `~/go/bin`, `~/.local/bin` and similar dirs that are not on `PATH` (`off_path: true`).
 - `real` is the symlink-resolved path. Ownership and kind come from `real`, not `path`.
+
+- `history <command> [args...]` lists past calls of a command from the user's shell history (zsh, bash, fish), oldest first, last 20 by default. Use it to answer "when did I last use X" or "how did I call X" before suggesting an uninstall. Orch's flags go before the command (`orch history -n 5 git commit`). Shell history can contain secrets: show only what is needed, never copy the output into files, commits or external services.
 
 ## Uninstalling
 

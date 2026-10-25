@@ -12,6 +12,11 @@ orch \- inspect and uninstall command-line tools
 .B orch uninstall
 .IR command | package
 [\fB\-\-dry\-run\fR] [\fB\-y\fR | \fB\-\-yes\fR]
+.br
+.B orch history
+[\fB\-n\fR \fIN\fR] [\fB\-\-json\fR] [\fB\-\-file\fR \fIpath\fR]
+.I command
+[\fIargs\fR...]
 .SH DESCRIPTION
 .B orch
 scans the directories in
@@ -80,6 +85,36 @@ Print the command and exit without running it.
 .BR \-y ", " \-\-yes
 Skip the confirmation prompt.
 .RE
+.TP
+\fBhistory\fR \fIcommand\fR [\fIargs\fR...]
+Show past calls of a command from shell history, oldest first. With
+.I args
+only calls whose leading arguments equal them are shown, so
+.B orch history git commit
+matches calls that start with
+.BR "git commit" .
+The command is recognized anywhere a command can start: after environment assignments, after
+.BR sudo ,
+.BR time ,
+.B env
+and similar wrappers, in pipelines and after
+.B &&
+or
+.BR ; .
+History is read from zsh, bash and fish. Options for orch go before the command.
+.RS
+.TP
+.BR \-n ", " \-\-limit " \fIN\fR"
+Show only the last N calls (default 20, 0 for all).
+.TP
+.B \-\-json
+Print JSON.
+.TP
+\fB\-\-file\fR \fIpath\fR
+Read this history file instead of the defaults. May be repeated.
+.RE
+.IP
+Shells often write history only when they exit, so the current session may be missing. History can contain secrets typed on the command line.
 .SH SAFETY
 .B uninstall
 refuses native OS tools. If no package manager owns the tool, it prints the path and exits with an error so you can remove the file yourself.
@@ -110,6 +145,10 @@ orch uninstall jq \-\-dry\-run
 .TP
 .B /opt/homebrew/Cellar
 Used to detect Homebrew ownership from the resolved path.
+.TP
+.B $HISTFILE, ~/.zsh_history, ~/.bash_history, ~/.local/share/fish/fish_history
+Read by
+.BR history .
 .SH LICENSE
 PolyForm Noncommercial 1.0.0. Commercial use needs a separate agreement with the author.
 .SH SEE ALSO
