@@ -5,6 +5,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versio
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-25
+
 ### Changed
 - `source` names version managers and apps (`nvm`, `asdf`, `mise`, `pyenv`, `rbenv`, `pipx`, `app`, `local`) instead of `unknown`.
 - `PATH` entries starting with `~` are expanded; other relative entries are skipped.
@@ -31,4 +33,5 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versio
 - Agent skill (`skills/orch/SKILL.md`).
 - PolyForm Noncommercial 1.0.0 license.
 
-[Unreleased]: https://github.com/tassan/orch/commits/main
+[Unreleased]: https://github.com/tassan/orch/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/tassan/orch/releases/tag/v0.1.0
