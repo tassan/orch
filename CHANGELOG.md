@@ -5,6 +5,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versio
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-25
+
 ### Added
 - Community files: `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, issue and PR templates, Dependabot.
 - golangci-lint (CI and `make lint`), race detector in CI, `make build|test|lint`.
@@ -40,5 +42,6 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versio
 - Agent skill (`skills/orch/SKILL.md`).
 - PolyForm Noncommercial 1.0.0 license.
 
-[Unreleased]: https://github.com/tassan/orch/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/tassan/orch/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/tassan/orch/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/tassan/orch/releases/tag/v0.1.0
