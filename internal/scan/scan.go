@@ -5,17 +5,21 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 )
 
 type Tool struct {
-	Name string `json:"name"`
-	Path string `json:"path"` // location found on PATH
-	Real string `json:"real"` // symlinks resolved
+	Name    string   `json:"name"`
+	Path    string   `json:"path"`              // location found on PATH
+	Real    string   `json:"real"`              // symlinks resolved
+	Shadows []string `json:"shadows,omitempty"` // same-named executables hidden behind this one
+	OffPath bool     `json:"off_path,omitempty"`
 }
 
-// Scan walks the given dirs; first dir wins on duplicate names.
+// Scan walks the given dirs; the first dir wins on duplicate names and later
+// copies with a different real path are recorded as Shadows.
 func Scan(dirs []string) []Tool {
-	seen := map[string]bool{}
+	idx := map[string]int{}
 	var tools []Tool
 	for _, dir := range dirs {
 		entries, err := os.ReadDir(dir)
@@ -23,9 +27,6 @@ func Scan(dirs []string) []Tool {
 			continue
 		}
 		for _, e := range entries {
-			if seen[e.Name()] {
-				continue
-			}
 			p := filepath.Join(dir, e.Name())
 			st, err := os.Stat(p) // follows symlinks
 			if err != nil || st.IsDir() || st.Mode()&0o111 == 0 {
@@ -35,7 +36,13 @@ func Scan(dirs []string) []Tool {
 			if err != nil {
 				real = p
 			}
-			seen[e.Name()] = true
+			if i, dup := idx[e.Name()]; dup {
+				if real != tools[i].Real {
+					tools[i].Shadows = append(tools[i].Shadows, p)
+				}
+				continue
+			}
+			idx[e.Name()] = len(tools)
 			tools = append(tools, Tool{Name: e.Name(), Path: p, Real: real})
 		}
 	}
@@ -43,16 +50,41 @@ func Scan(dirs []string) []Tool {
 	return tools
 }
 
-// PathDirs returns the dirs in a PATH-style string, deduplicated.
+// PathDirs returns the absolute dirs in a PATH-style string, deduplicated.
+// A leading "~" is expanded (shells do it for assignments, the kernel does not).
+// Relative entries are skipped: they depend on the working directory.
 func PathDirs(path string) []string {
+	home, _ := os.UserHomeDir()
 	var out []string
 	seen := map[string]bool{}
 	for _, d := range filepath.SplitList(path) {
-		if d == "" || seen[d] {
+		if d == "~" || strings.HasPrefix(d, "~/") {
+			if home == "" {
+				continue
+			}
+			d = filepath.Join(home, strings.TrimPrefix(d, "~"))
+		}
+		if !filepath.IsAbs(d) || seen[d] {
 			continue
 		}
 		seen[d] = true
 		out = append(out, d)
+	}
+	return out
+}
+
+// ExtraDirs lists well-known tool dirs that exist but are not in have.
+func ExtraDirs(home string, have []string) []string {
+	skip := map[string]bool{}
+	for _, d := range have {
+		skip[d] = true
+	}
+	var out []string
+	for _, rel := range []string{".cargo/bin", "go/bin", ".local/bin", ".bun/bin", ".deno/bin", ".dotnet/tools"} {
+		d := filepath.Join(home, rel)
+		if st, err := os.Stat(d); err == nil && st.IsDir() && !skip[d] {
+			out = append(out, d)
+		}
 	}
 	return out
 }

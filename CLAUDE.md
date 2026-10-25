@@ -18,11 +18,14 @@ go run ./cmd/orch uninstall <name> [--dry-run] [--yes]
 
 ## Architecture
 
-Pipeline: `scan` (PATH walk) -> `classify` (native/user + source guess) -> `provider` (ownership + uninstall) ; `info` probes a tool; `internal/cli` wires cobra commands and builds the `entry` view model.
+Pipeline: `scan` (PATH walk, records `Shadows`) -> `classify` (native/user + source guess) -> `provider` (ownership + uninstall) ; `info` probes a tool; `internal/cli` wires cobra commands and builds the `entry` view model.
 
 - `scan`: first PATH dir wins on duplicate names; records both `Path` and symlink-resolved `Real`. All classification and ownership use `Real`, never `Path` (brew bins in `/opt/homebrew/bin` are symlinks into `Cellar`).
 - `classify`: native = resolved path under fixed macOS prefixes (`/usr/bin`, `/bin`, `/usr/sbin`, `/usr/libexec`, `/sbin`, `/System`, `/Library/Apple`). `Source` is a path-based heuristic for display only.
-- `provider.Provider` interface (`Owns`, `UninstallCmd`, `Available`): add new managers (cargo, npm...) in `internal/provider` and register in `All()`. Providers return an `*exec.Cmd`; the CLI owns dry-run/confirm/execution. Brew owner/formula is parsed from `.../Cellar/<formula>/...`.
+- `provider.Provider` interface (`Owner`, `Lookup`, `UninstallCmd`, `Available`) works on `Package` values: add new managers (cargo, npm...) in `internal/provider` and register in `All()`. Providers return an `*exec.Cmd`; the CLI owns dry-run/confirm/execution. `cli.providers` is a var so tests inject a fake.
+- Providers: brew, cargo (`$CARGO_HOME/.crates2.json`), npm (`/lib/node_modules/<pkg>`), pipx (`/pipx/venvs/<pkg>`). Go has no uninstall command, so it has no provider. Owner order in `All()` matters: brew claims `/Cellar/` paths first.
+- Brew ownership: formula from `.../Cellar/<formula>/...`; cask from `/Caskroom/<token>/` or from the `.app` bundle in the path, matched against `brew info --cask --json=v2 --installed` (loaded lazily, once, about 0.5s).
+- `uninstall` resolves its argument as a PATH command first, then as an installed package name, and lists the other PATH commands the package provides before confirming.
 
 ## Safety rules (keep)
 

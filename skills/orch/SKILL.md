@@ -12,13 +12,14 @@ Check it is installed with `command -v orch`. If missing: `go install github.com
 ## Commands
 
 ```
-orch list [--native|--user] [--json]
-orch info <name>
-orch uninstall <name> [--dry-run] [--yes]
+orch list [--native|--user] [--all] [--json]
+orch info <name> [--json] [--no-run]
+orch uninstall <command|package> [--dry-run] [--yes]
 ```
 
-- `list --json` returns an array of `{name, path, real, kind, source}`. Prefer it over the table when you need to filter or count. `kind` is `native` or `user`; `source` (user tools only) is a path-based guess: `brew`, `cargo`, `go`, `npm`, `manual` or `unknown`.
-- `info <name>` prints path, resolved path, kind, source, owner, version and a one-line description. It runs `<name> --version` (2s timeout), which executes the tool.
+- `list --json` returns an array of `{name, path, real, kind, source, package}`. Prefer it over the table when you need to filter or count. `kind` is `native` or `user`; `source` (user tools only) is the owning package manager when one is found (`brew`, `cargo`, `npm`, `pipx`), otherwise a path-based guess (`nvm`, `asdf`, `mise`, `app`, `local`, `go`, `manual`, `unknown`). `package` (`{provider, name, cask}`) is set only when a package manager owns the tool.
+- `info <name>` prints path, resolved path, kind, source, owner, shadows, version and a one-line description (`--json` for structured output). It runs `<name> --version` (2s timeout), which executes the tool; add `--no-run` for an untrusted binary.
+- `list --all` also scans `~/.cargo/bin`, `~/go/bin`, `~/.local/bin` and similar dirs that are not on `PATH` (`off_path: true`).
 - `real` is the symlink-resolved path. Ownership and kind come from `real`, not `path`.
 
 ## Uninstalling
@@ -26,7 +27,7 @@ orch uninstall <name> [--dry-run] [--yes]
 Uninstalling changes the user's machine, so follow this order:
 
 1. `orch info <name>` to confirm it is `kind: user` and has an `owner`.
-2. `orch uninstall <name> --dry-run` and show the user the exact command it prints.
+2. `orch uninstall <name> --dry-run` and show the user the exact command and the `removes:` line. Uninstall takes the whole package, so those commands go too. The argument can be a command or a package name.
 3. Only after the user agrees to that command, run `orch uninstall <name> --yes`. Without `--yes` it waits for a prompt on stdin and will hang or abort in a non-interactive shell.
 
 Do not run `--yes` on your own initiative, and do not batch-uninstall from a list without the user approving each tool.
@@ -35,10 +36,11 @@ Do not run `--yes` on your own initiative, and do not batch-uninstall from a lis
 
 - `is a native OS tool; refusing to uninstall`: stop. Do not try to remove it another way.
 - `no package manager owns <name>; remove manually: <path>`: report the path to the user. Do not `rm` it unless they explicitly ask.
-- `not found on PATH`: the name is wrong or the tool is not on `PATH`.
-- Some brew formulas provide several commands. Uninstalling one removes the whole formula, so the other commands go too. Mention this when `real` points into `Cellar/<formula>/`.
+- `neither a command on PATH nor an installed package`: the name is wrong.
+- `no package manager owns` can also mean an app that is not a brew cask (for example Docker.app) or a version-manager shim (nvm, asdf). Report the path; do not guess a removal.
 
 ## Caveats
 
 - `source` is a heuristic. A few user tools show `unknown` (for example symlinks outside the native directories); treat `unknown` as "ask the user", not as safe to remove.
-- Only the first match on `PATH` is listed. A shadowed copy in a later directory will not appear.
+- Only the first match on `PATH` is listed; later copies appear in `shadows`. Aliases and shell functions are invisible to `orch`.
+- Only brew, cargo, npm and pipx can uninstall. Everything else (go, nvm, asdf, apps) is report-only.

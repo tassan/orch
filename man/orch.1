@@ -3,13 +3,14 @@
 orch \- inspect and uninstall command-line tools
 .SH SYNOPSIS
 .B orch list
-[\fB\-\-native\fR | \fB\-\-user\fR] [\fB\-\-json\fR]
+[\fB\-\-native\fR | \fB\-\-user\fR] [\fB\-\-all\fR] [\fB\-\-json\fR]
 .br
 .B orch info
 .I name
+[\fB\-\-json\fR] [\fB\-\-no\-run\fR]
 .br
 .B orch uninstall
-.I name
+.IR command | package
 [\fB\-\-dry\-run\fR] [\fB\-y\fR | \fB\-\-yes\fR]
 .SH DESCRIPTION
 .B orch
@@ -22,7 +23,7 @@ and marks every executable it finds as
 (installed by you). It can show details about a tool and uninstall it through the package manager that owns it.
 .PP
 .B orch
-is not a package manager. It delegates uninstalls to one that is already installed (currently Homebrew) and never deletes files itself.
+is not a package manager. It delegates uninstalls to one that is already installed (Homebrew, cargo, npm and pipx) and never deletes files itself.
 .PP
 Only macOS is supported.
 .SH COMMANDS
@@ -39,6 +40,11 @@ Show only tools shipped with the OS.
 .B \-\-user
 Show only user-installed tools.
 .TP
+.B \-\-all
+Also scan well-known tool directories that are not on
+.BR PATH :
+~/.cargo/bin, ~/go/bin, ~/.local/bin, ~/.bun/bin, ~/.deno/bin and ~/.dotnet/tools.
+.TP
 .B \-\-json
 Print JSON instead of a table.
 .RE
@@ -46,10 +52,26 @@ Print JSON instead of a table.
 \fBinfo\fR \fIname\fR
 Show path, resolved path, kind, source, owning package manager, version and the one-line man page description.
 .IP
-The version is read by running \fIname\fR \fB\-\-version\fR with a 2 second timeout, which executes the tool.
+The version is read by running \fIname\fR \fB\-\-version\fR with a 2 second timeout, which executes the tool. Same-named commands hidden behind the first one on PATH are listed as shadows.
+.RS
 .TP
-\fBuninstall\fR \fIname\fR
-Uninstall a tool with the package manager that owns it. The command is printed first and a confirmation is requested.
+.B \-\-json
+Print JSON.
+.TP
+.B \-\-no\-run
+Do not execute the tool to read its version.
+.RE
+.TP
+\fBuninstall\fR \fIcommand\fR|\fIpackage\fR
+Uninstall the package that provides a command, using the package manager that owns it. The argument is a command found on
+.B PATH
+or the name of an installed package, so
+.B orch uninstall svt-av1
+and
+.B orch uninstall SvtAv1EncApp
+do the same. Homebrew (formulae and casks), cargo, global npm and pipx are supported. Tools from other sources (go, nvm, asdf, apps) are reported but not removed.
+.IP
+The whole package is removed, not just the command. Before asking to confirm, orch prints the package, how many commands on PATH belong to it, and the command it will run.
 .RS
 .TP
 .B \-\-dry\-run

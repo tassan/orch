@@ -30,8 +30,12 @@ func Whatis(name string) string {
 	if err != nil {
 		return ""
 	}
-	// whatis matches loosely (ls -> npm-ls); keep only exact-name entries.
-	for _, line := range strings.Split(string(out), "\n") {
+	return pickWhatis(string(out), name)
+}
+
+// pickWhatis keeps the entry for exactly name: whatis matches loosely (ls -> npm-ls).
+func pickWhatis(out, name string) string {
+	for _, line := range strings.Split(out, "\n") {
 		if strings.HasPrefix(line, name+"(") || strings.HasPrefix(line, name+" ") {
 			return line
 		}

@@ -14,17 +14,26 @@ Requires Go 1.22+.
 go install github.com/tassan/orch/cmd/orch@latest
 ```
 
+Tagged releases (`v*`) publish macOS binaries (amd64, arm64) through GitHub Actions and GoReleaser.
+
 ## Usage
 
 ```
-orch list [--native|--user] [--json]   # tools on PATH, with kind and source
-orch info <name>                       # path, kind, owner, version, description
-orch uninstall <name> [--dry-run] [-y] # via the owning package manager
+orch list [--native|--user] [--all] [--json]   # tools on PATH, with kind and source
+orch info <name> [--json] [--no-run]         # path, kind, owner, shadows, version, description
+orch uninstall <command|package> [--dry-run] [-y] # via the owning package manager
 ```
 
+- `uninstall` takes a command on `PATH` or an installed package name (`orch uninstall svt-av1` and `orch uninstall SvtAv1EncApp` do the same). It removes the whole package, and first prints how many commands on `PATH` go with it.
+- Homebrew formulae and casks are both detected. Casks are matched to their `.app` bundle, so tools inside apps like Cursor or VS Code resolve to their cask.
 - `uninstall` refuses native OS tools.
 - If no package manager owns a tool, `orch` prints its path and leaves it alone.
-- `info` runs `<tool> --version` (2s timeout) to read the version, which executes the tool.
+- `info` runs `<tool> --version` (2s timeout) to read the version, which executes the tool. Pass `--no-run` to skip that.
+- Owners: Homebrew (formulae and casks), cargo, global npm (including nvm) and pipx. Other tools still show a source guess (`nvm`, `asdf`, `mise`, `app`, `local`, `go`...) but `uninstall` only prints their path. `go install` binaries have no uninstall command, so they are never owned.
+- `list --all` also scans well-known dirs that are not on `PATH` (`~/.cargo/bin`, `~/go/bin`, `~/.local/bin`, `~/.bun/bin`, `~/.deno/bin`, `~/.dotnet/tools`).
+- When a command exists in several `PATH` dirs, only the first is listed; `info` and `list --json` show the others as `shadows`.
+- Not visible to `orch`: shell aliases, functions and builtins, which only the shell knows. A leading `~` in `PATH` is expanded; other relative entries are ignored.
+- `orch --version` prints the version.
 
 ## Man page
 

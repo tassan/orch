@@ -26,16 +26,34 @@ func Classify(real string) Kind {
 }
 
 // Source guesses where a user tool came from, from its resolved path.
+// A package manager that owns the tool overrides this guess.
 func Source(real, home string) string {
+	under := func(rel string) bool { return home != "" && strings.HasPrefix(real, filepath.Join(home, rel)+"/") }
 	switch {
 	case strings.HasPrefix(real, "/opt/homebrew/"), strings.Contains(real, "/Cellar/"), strings.HasPrefix(real, "/usr/local/Homebrew/"):
 		return "brew"
-	case home != "" && strings.HasPrefix(real, filepath.Join(home, ".cargo")+"/"):
+	case under(".cargo"):
 		return "cargo"
-	case home != "" && strings.HasPrefix(real, filepath.Join(home, "go", "bin")+"/"):
+	case under("go/bin"):
 		return "go"
+	case under(".nvm"):
+		return "nvm"
+	case under(".asdf"):
+		return "asdf"
+	case under(".local/share/mise"):
+		return "mise"
+	case under(".pyenv"):
+		return "pyenv"
+	case under(".rbenv"):
+		return "rbenv"
+	case strings.Contains(real, "/pipx/venvs/"):
+		return "pipx"
 	case strings.Contains(real, "/node_modules/"):
 		return "npm"
+	case strings.Contains(real, ".app/"):
+		return "app"
+	case under(".local"):
+		return "local"
 	case strings.HasPrefix(real, "/usr/local/"):
 		return "manual"
 	}
