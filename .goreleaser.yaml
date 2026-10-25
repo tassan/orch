@@ -1,0 +1,14 @@
+version: 2
+project_name: orch
+builds:
+  - main: ./cmd/orch
+    env: [CGO_ENABLED=0]
+    goos: [darwin]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w -X github.com/tassan/orch/internal/cli.Version={{.Version}}
+archives:
+  - formats: [tar.gz]
+    files: [LICENSE, README.md, CHANGELOG.md, man/orch.1]
+checksum:
+  name_template: checksums.txt
