@@ -33,6 +33,14 @@ make install-man   # installs man/orch.1 under $(brew --prefix)/share/man
 man orch
 ```
 
+## Agent skill
+
+`skills/orch/SKILL.md` teaches coding agents how to use `orch` safely (dry-run first, ask before uninstalling). For Claude Code:
+
+```
+mkdir -p ~/.claude/skills && cp -r skills/orch ~/.claude/skills/
+```
+
 ## Development
 
 ```

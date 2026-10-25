@@ -11,6 +11,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versio
 - `orch uninstall <name>` with `--dry-run` and `--yes`: delegates to the owning package manager; refuses native tools and never deletes files itself.
 - Homebrew provider; the `Provider` interface allows adding more managers.
 - Man page (`man/orch.1`) and `make install-man` / `make install` targets.
+- Agent skill (`skills/orch/SKILL.md`).
 - PolyForm Noncommercial 1.0.0 license.
 
 [Unreleased]: https://github.com/tassan/orch/commits/main
