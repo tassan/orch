@@ -9,7 +9,7 @@
 
 A CLI for the CLI tools you installed and forgot about.
 
-`orch` scans your `PATH`, marks every tool as **native** (ships with macOS) or **user** (you installed it), tells you which package manager owns it, and uninstalls it through that package manager. It is not a package manager: it never deletes files itself.
+`orch` scans your `PATH`, marks every tool as **native** (ships with macOS) or **user** (you installed it), tells you which package manager owns it, uninstalls it through that package manager, and shows when you last used it from your shell history. It is not a package manager: it never deletes files itself.
 
 ```
 $ orch list --user
@@ -34,11 +34,17 @@ $ orch uninstall nss --dry-run
 package:  brew formula nss
 removes:  62 command(s) on PATH: addbuiltin, atob, baddbdir, bltest, btoa, certutil, chktest, cmsutil, crlutil, crmftest, +52 more
 would run: brew uninstall --formula nss
+
+$ orch history -n 3 orch
+2026-10-25 15:16  orch info orch
+2026-10-25 15:26  orch history terraform
+2026-10-25 15:26  orch history -n 60 terraform
+showing 3 of 17 calls of "orch" from .zsh_history, .bash_history
 ```
 
 ## Why this exists
 
-I install CLI tools constantly, across projects and studies, and forget most of them. A year later I have hundreds of commands and no idea which came with macOS, which I installed, or whether I used brew, cargo, npm or something else. `orch` answers that, and removes things without making me remember how I installed them.
+I install CLI tools constantly, across projects and studies, and forget most of them. A year later I have hundreds of commands and no idea which came with macOS, which I installed, or whether I used brew, cargo, npm or something else. `orch` answers that, shows when I last actually ran a tool, and removes things without making me remember how I installed them.
 
 ## Vibecoded into oblivion, lol
 
@@ -60,13 +66,15 @@ go install github.com/tassan/orch/cmd/orch@latest
 
 Tagged releases publish macOS binaries (amd64, arm64). They are not signed or notarized, so a browser-downloaded copy may be blocked by Gatekeeper; clear it with `xattr -d com.apple.quarantine orch`. The Homebrew and `go install` routes are not affected.
 
+Upgrade with `brew upgrade orch` (or rerun `go install`). `orch --version` shows what you have.
+
 ## Usage
 
 ```
 orch list [--native|--user] [--all] [--json]       # tools on PATH, with kind and source
 orch info <name> [--json] [--no-run]               # path, kind, owner, shadows, version, description
 orch uninstall <command|package> [--dry-run] [-y]  # via the owning package manager
-orch history [-n N] [--json] <command> [args...]    # past calls of a command, from your shell history
+orch history [-n N] [--json] <command> [args...]   # past calls of a command, from your shell history
 orch --version
 ```
 
@@ -101,7 +109,7 @@ Building from source instead? `make install-man` copies `man/orch.1` under `$(br
 
 ## Agent skill
 
-`skills/orch/SKILL.md` teaches coding agents how to use `orch` safely (dry-run first, ask before uninstalling). For Claude Code:
+`skills/orch/SKILL.md` teaches coding agents how to use `orch` safely (dry-run first, ask before uninstalling, careful with history output). For Claude Code:
 
 ```
 mkdir -p ~/.claude/skills && cp -r skills/orch ~/.claude/skills/
@@ -109,7 +117,7 @@ mkdir -p ~/.claude/skills && cp -r skills/orch ~/.claude/skills/
 
 ## Limitations
 
-macOS only. Only brew, cargo, npm and pipx can uninstall. The `source` column is a path-based guess when no package manager owns the tool.
+macOS only. Only brew, cargo, npm and pipx can uninstall. The `source` column is a path-based guess when no package manager owns the tool. `history` can only see what your shell wrote to its history files.
 
 ## Contributing
 
