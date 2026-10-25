@@ -17,7 +17,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versio
 - `orch list` reports the owning package manager as `source` and adds a `package` field to `--json`.
 
 ### Added
-- README badges: CI, Go Reference, Go Report Card, Go version, platform, license.
+- README badges: CI, Go Reference, Go version, platform, license.
 - Providers for cargo, global npm (including nvm) and pipx.
 - `shadows`: same-named commands hidden behind the first one on `PATH`, shown by `info` and `list --json`.
 - `orch list --all` (scan well-known dirs outside `PATH`), `orch info --json`, `orch info --no-run`, and `orch --version`.

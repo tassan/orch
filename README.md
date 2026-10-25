@@ -2,7 +2,6 @@
 
 [![CI](https://github.com/tassan/orch/actions/workflows/ci.yml/badge.svg)](https://github.com/tassan/orch/actions/workflows/ci.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/tassan/orch.svg)](https://pkg.go.dev/github.com/tassan/orch)
-[![Go Report Card](https://goreportcard.com/badge/github.com/tassan/orch)](https://goreportcard.com/report/github.com/tassan/orch)
 ![Go version](https://img.shields.io/github/go-mod/go-version/tassan/orch)
 ![Platform](https://img.shields.io/badge/platform-macOS-lightgrey)
 [![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial-blue)](LICENSE)
