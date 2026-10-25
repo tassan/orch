@@ -1,14 +1,34 @@
 version: 2
 project_name: orch
+before:
+  hooks:
+    - sh -c 'mkdir -p completions && for s in bash zsh fish; do go run ./cmd/orch completion $s > completions/orch.$s; done'
 builds:
   - main: ./cmd/orch
     env: [CGO_ENABLED=0]
     goos: [darwin]
     goarch: [amd64, arm64]
     ldflags:
-      - -s -w -X github.com/tassan/orch/internal/cli.Version={{.Version}}
+      - -s -w -X github.com/tassan/orch/internal/cli.Version={{.Version}} -X github.com/tassan/orch/internal/cli.Commit={{.ShortCommit}} -X github.com/tassan/orch/internal/cli.Date={{.CommitDate}}
 archives:
   - formats: [tar.gz]
-    files: [LICENSE, README.md, CHANGELOG.md, man/orch.1]
+    files: [LICENSE, README.md, CHANGELOG.md, man/orch.1, completions/*]
 checksum:
   name_template: checksums.txt
+brews:
+  - name: orch
+    repository:
+      owner: tassan
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    homepage: https://github.com/tassan/orch
+    description: Inspect CLI tools and uninstall them through the package manager that owns them
+    license: PolyForm-Noncommercial-1.0.0
+    install: |
+      bin.install "orch"
+      man1.install "man/orch.1"
+      bash_completion.install "completions/orch.bash" => "orch"
+      zsh_completion.install "completions/orch.zsh" => "_orch"
+      fish_completion.install "completions/orch.fish"
+    test: |
+      assert_match "orch version", shell_output("#{bin}/orch --version")

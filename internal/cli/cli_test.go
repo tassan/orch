@@ -124,9 +124,9 @@ func TestInfoJSONShadowsAndNoRun(t *testing.T) {
 	setup(t, "loner")
 	marker := filepath.Join(t.TempDir(), "ran")
 	dir := t.TempDir()
-	os.WriteFile(filepath.Join(dir, "probe"), []byte("#!/bin/sh\n/usr/bin/touch "+marker+"\necho v1\n"), 0o755)
+	must(t, os.WriteFile(filepath.Join(dir, "probe"), []byte("#!/bin/sh\n/usr/bin/touch "+marker+"\necho v1\n"), 0o755))
 	other := t.TempDir()
-	os.WriteFile(filepath.Join(other, "probe"), []byte("#!/bin/sh\necho v2\n"), 0o755)
+	must(t, os.WriteFile(filepath.Join(other, "probe"), []byte("#!/bin/sh\necho v2\n"), 0o755))
 	t.Setenv("PATH", dir+":"+other)
 
 	out, err := run("info", "probe", "--no-run", "--json")
@@ -150,8 +150,8 @@ func TestListAllFindsOffPathTools(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("HOME", home)
 	cargoBin := filepath.Join(home, ".cargo", "bin")
-	os.MkdirAll(cargoBin, 0o755)
-	os.WriteFile(filepath.Join(cargoBin, "offtool"), []byte("x"), 0o755)
+	must(t, os.MkdirAll(cargoBin, 0o755))
+	must(t, os.WriteFile(filepath.Join(cargoBin, "offtool"), []byte("x"), 0o755))
 
 	out, _ := run("list", "--user", "--json")
 	if strings.Contains(out, "offtool") {
@@ -166,9 +166,29 @@ func TestListAllFindsOffPathTools(t *testing.T) {
 	}
 }
 
+func TestVersionIncludesBuildInfo(t *testing.T) {
+	v, c, d := Version, Commit, Date
+	t.Cleanup(func() { Version, Commit, Date = v, c, d })
+	Version, Commit, Date = "1.2.3", "abc1234", "2026-10-25"
+	if got := version(); got != "1.2.3 (abc1234, 2026-10-25)" {
+		t.Errorf("got %q", got)
+	}
+	Commit = ""
+	if got := version(); got != "1.2.3" {
+		t.Errorf("got %q", got)
+	}
+}
+
 func TestVersionFlag(t *testing.T) {
 	out, err := run("--version")
 	if err != nil || !strings.Contains(out, "orch version") {
 		t.Errorf("err=%v out=%q", err, out)
+	}
+}
+
+func must(t *testing.T, err error) {
+	t.Helper()
+	if err != nil {
+		t.Fatal(err)
 	}
 }

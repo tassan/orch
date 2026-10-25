@@ -72,10 +72,17 @@ func find(name string) (entry, bool) {
 }
 
 // Version is set at release time with -ldflags "-X github.com/tassan/orch/internal/cli.Version=...".
-var Version = ""
+var (
+	Version = ""
+	Commit  = ""
+	Date    = ""
+)
 
 func version() string {
 	if Version != "" {
+		if Commit != "" && Date != "" {
+			return fmt.Sprintf("%s (%s, %s)", Version, Commit, Date)
+		}
 		return Version
 	}
 	if bi, ok := debug.ReadBuildInfo(); ok && bi.Main.Version != "" && bi.Main.Version != "(devel)" {
