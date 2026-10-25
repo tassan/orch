@@ -26,6 +26,13 @@ orch uninstall <name> [--dry-run] [-y] # via the owning package manager
 - If no package manager owns a tool, `orch` prints its path and leaves it alone.
 - `info` runs `<tool> --version` (2s timeout) to read the version, which executes the tool.
 
+## Man page
+
+```
+make install-man   # installs man/orch.1 under $(brew --prefix)/share/man
+man orch
+```
+
 ## Development
 
 ```

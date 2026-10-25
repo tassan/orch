@@ -1,0 +1,97 @@
+.TH ORCH 1 "2026-10-25" "orch" "User Commands"
+.SH NAME
+orch \- inspect and uninstall command-line tools
+.SH SYNOPSIS
+.B orch list
+[\fB\-\-native\fR | \fB\-\-user\fR] [\fB\-\-json\fR]
+.br
+.B orch info
+.I name
+.br
+.B orch uninstall
+.I name
+[\fB\-\-dry\-run\fR] [\fB\-y\fR | \fB\-\-yes\fR]
+.SH DESCRIPTION
+.B orch
+scans the directories in
+.B PATH
+and marks every executable it finds as
+.I native
+(shipped with the operating system) or
+.I user
+(installed by you). It can show details about a tool and uninstall it through the package manager that owns it.
+.PP
+.B orch
+is not a package manager. It delegates uninstalls to one that is already installed (currently Homebrew) and never deletes files itself.
+.PP
+Only macOS is supported.
+.SH COMMANDS
+.TP
+.B list
+List tools found on
+.BR PATH .
+When a name appears in several directories, the first one wins. Columns are name, kind, source and path. Source is a guess made from the resolved path: brew, cargo, go, npm, manual or unknown.
+.RS
+.TP
+.B \-\-native
+Show only tools shipped with the OS.
+.TP
+.B \-\-user
+Show only user-installed tools.
+.TP
+.B \-\-json
+Print JSON instead of a table.
+.RE
+.TP
+\fBinfo\fR \fIname\fR
+Show path, resolved path, kind, source, owning package manager, version and the one-line man page description.
+.IP
+The version is read by running \fIname\fR \fB\-\-version\fR with a 2 second timeout, which executes the tool.
+.TP
+\fBuninstall\fR \fIname\fR
+Uninstall a tool with the package manager that owns it. The command is printed first and a confirmation is requested.
+.RS
+.TP
+.B \-\-dry\-run
+Print the command and exit without running it.
+.TP
+.BR \-y ", " \-\-yes
+Skip the confirmation prompt.
+.RE
+.SH SAFETY
+.B uninstall
+refuses native OS tools. If no package manager owns the tool, it prints the path and exits with an error so you can remove the file yourself.
+.SH EXIT STATUS
+.TP
+.B 0
+Success.
+.TP
+.B 1
+Tool not found, native tool refused, no owner, aborted, or the package manager failed.
+.SH EXAMPLES
+List tools you installed:
+.PP
+.RS
+.nf
+orch list \-\-user
+.fi
+.RE
+.PP
+See what would be run to remove a Homebrew tool:
+.PP
+.RS
+.nf
+orch uninstall jq \-\-dry\-run
+.fi
+.RE
+.SH FILES
+.TP
+.B /opt/homebrew/Cellar
+Used to detect Homebrew ownership from the resolved path.
+.SH LICENSE
+PolyForm Noncommercial 1.0.0. Commercial use needs a separate agreement with the author.
+.SH SEE ALSO
+.BR brew (1),
+.BR whatis (1)
+.SH BUGS
+https://github.com/tassan/orch/issues
