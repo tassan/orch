@@ -1,5 +1,12 @@
 # orch
 
+[![CI](https://github.com/tassan/orch/actions/workflows/ci.yml/badge.svg)](https://github.com/tassan/orch/actions/workflows/ci.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/tassan/orch.svg)](https://pkg.go.dev/github.com/tassan/orch)
+[![Go Report Card](https://goreportcard.com/badge/github.com/tassan/orch)](https://goreportcard.com/report/github.com/tassan/orch)
+![Go version](https://img.shields.io/github/go-mod/go-version/tassan/orch)
+![Platform](https://img.shields.io/badge/platform-macOS-lightgrey)
+[![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial-blue)](LICENSE)
+
 CLI tool to manage CLI tools. `orch` scans your `PATH`, marks every tool as **native** (ships with the OS) or **user** (installed by you), shows details about a tool, and uninstalls it through the package manager that owns it.
 
 It is not a package manager. It delegates uninstalls to one that is already installed (currently Homebrew), and never deletes files itself.
@@ -8,7 +15,7 @@ Status: early. macOS only.
 
 ## Install
 
-Requires Go 1.22+.
+Requires Go 1.22+ (CI tests with the latest stable Go).
 
 ```
 go install github.com/tassan/orch/cmd/orch@latest
