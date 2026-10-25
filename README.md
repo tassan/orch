@@ -87,13 +87,9 @@ orch --version
 
 ## Man page and completions
 
-Homebrew installs both. From a checkout:
+`brew install tassan/tap/orch` installs the man page and the bash, zsh and fish completions, so `man orch` works right away.
 
-```
-make install-man   # installs man/orch.1 under $(brew --prefix)/share/man
-man orch
-orch completion zsh   # also bash, fish
-```
+Building from source instead? `make install-man` copies `man/orch.1` under `$(brew --prefix)/share/man`, and `orch completion zsh` (also `bash`, `fish`) prints a completion script. Don't run `make install-man` if you installed with Homebrew: the copied file blocks `brew link`.
 
 ## Agent skill
 

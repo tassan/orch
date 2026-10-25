@@ -7,7 +7,7 @@ description: Use the `orch` CLI to find out which command-line tools are install
 
 `orch` inventories executables on `PATH`, marks each **native** (ships with macOS) or **user** (installed by the user), and uninstalls user tools via the package manager that owns them (currently Homebrew). It is not a package manager and never deletes files itself. macOS only.
 
-Check it is installed with `command -v orch`. If missing: `go install github.com/tassan/orch/cmd/orch@latest`.
+Check it is installed with `command -v orch`. If missing: `brew install tassan/tap/orch` (installs the man page and shell completions too). Without Homebrew: `go install github.com/tassan/orch/cmd/orch@latest`. Check the version with `orch --version`.
 
 ## Commands
 
