@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`orch`: Go CLI that inventories CLI tools on PATH, tags each **native** (ships with OS) or **user** (installed), shows info, and uninstalls by delegating to the owning package manager (currently brew). It is NOT a package manager. v1 targets macOS only.
+`orch`: Go CLI that inventories CLI tools on PATH, tags each **native** (ships with OS) or **user** (installed), shows info, and uninstalls by delegating to the owning package manager (brew, cargo, npm, pipx). It is NOT a package manager. v1 targets macOS only.
 
 ## Commands
 
