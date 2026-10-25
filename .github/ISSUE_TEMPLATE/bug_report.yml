@@ -1,0 +1,28 @@
+name: Bug report
+description: Something orch got wrong
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Command you ran, what you expected, what you got.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: orch version
+      description: Output of `orch --version`
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and chip
+      placeholder: macOS 15.5, Apple silicon
+  - type: textarea
+    id: output
+    attributes:
+      label: Output of `orch info <tool>` (if about one tool)
+      render: shell

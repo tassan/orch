@@ -9,7 +9,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```
-go build ./... && go vet ./... && go test ./...
+go build ./... && go vet ./... && go test -race ./...
+golangci-lint run                                # same config as CI (.golangci.yml)
 go test ./internal/classify -run TestClassify   # single test
 go run ./cmd/orch list [--native|--user] [--json]
 go run ./cmd/orch info <name>
@@ -26,6 +27,10 @@ Pipeline: `scan` (PATH walk, records `Shadows`) -> `classify` (native/user + sou
 - Providers: brew, cargo (`$CARGO_HOME/.crates2.json`), npm (`/lib/node_modules/<pkg>`), pipx (`/pipx/venvs/<pkg>`). Go has no uninstall command, so it has no provider. Owner order in `All()` matters: brew claims `/Cellar/` paths first.
 - Brew ownership: formula from `.../Cellar/<formula>/...`; cask from `/Caskroom/<token>/` or from the `.app` bundle in the path, matched against `brew info --cask --json=v2 --installed` (loaded lazily, once, about 0.5s).
 - `uninstall` resolves its argument as a PATH command first, then as an installed package name, and lists the other PATH commands the package provides before confirming.
+
+## Release
+
+Tagging `v*` runs `.github/workflows/release.yml` (GoReleaser): builds darwin amd64/arm64, publishes the GitHub release, and pushes `orch.rb` to `tassan/homebrew-tap` using the `HOMEBREW_TAP_TOKEN` secret. Binaries are unsigned (no Apple account); the formula route avoids Gatekeeper. `brews` is soft-deprecated in GoReleaser 2.x (warning only); `goreleaser check` fails on it, so it is not run in CI.
 
 ## Safety rules (keep)
 

@@ -5,6 +5,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versio
 
 ## [Unreleased]
 
+### Added
+- Community files: `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, issue and PR templates, Dependabot.
+- golangci-lint (CI and `make lint`), race detector in CI, `make build|test|lint`.
+- Shell completions (bash, zsh, fish) in release archives and the Homebrew formula; `orch --version` includes commit and date.
+- README: sample output, origin story, limitations.
+- Homebrew tap: `brew install tassan/tap/orch`, published by the release workflow.
+
 ## [0.1.0] - 2026-10-25
 
 ### Changed
