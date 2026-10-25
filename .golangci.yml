@@ -1,0 +1,20 @@
+version: "2"
+linters:
+  default: none
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - unused
+    - ineffassign
+    - misspell
+  settings:
+    errcheck:
+      # Terminal output: a failed write to stdout/stderr is not actionable.
+      exclude-functions:
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
+formatters:
+  enable:
+    - gofmt

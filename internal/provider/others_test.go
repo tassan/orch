@@ -10,8 +10,8 @@ import (
 
 func TestCargo(t *testing.T) {
 	dir := t.TempDir()
-	os.WriteFile(filepath.Join(dir, ".crates2.json"), []byte(
-		`{"installs":{"ripgrep 14.1.0 (registry+https://github.com/rust-lang/crates.io-index)":{"bins":["rg"]}}}`), 0o644)
+	must(t, os.WriteFile(filepath.Join(dir, ".crates2.json"), []byte(
+		`{"installs":{"ripgrep 14.1.0 (registry+https://github.com/rust-lang/crates.io-index)":{"bins":["rg"]}}}`), 0o644))
 	c := &Cargo{dir: dir}
 	if p, ok := c.Owner(scan.Tool{Real: filepath.Join(dir, "bin", "rg")}); !ok || p.Name != "ripgrep" {
 		t.Errorf("rg: %+v %v", p, ok)
@@ -73,5 +73,12 @@ func TestPipx(t *testing.T) {
 	}
 	if got := Display(p.UninstallCmd(Package{Name: "black"})); got != "pipx uninstall black" {
 		t.Errorf("got %q", got)
+	}
+}
+
+func must(t *testing.T, err error) {
+	t.Helper()
+	if err != nil {
+		t.Fatal(err)
 	}
 }

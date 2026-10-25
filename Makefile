@@ -1,6 +1,16 @@
 PREFIX ?= $(shell brew --prefix 2>/dev/null || echo /usr/local)
 
-.PHONY: install install-man
+.PHONY: build test lint install install-man
+build:
+	go build -o orch ./cmd/orch
+
+test:
+	go vet ./...
+	go test -race ./...
+
+lint:
+	golangci-lint run
+
 install:
 	go install ./cmd/orch
 

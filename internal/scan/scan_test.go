@@ -29,12 +29,12 @@ func TestScanFirstWinsAndSkipsNonExec(t *testing.T) {
 
 func TestScanShadowsSymlinksAndSkips(t *testing.T) {
 	a, b := t.TempDir(), t.TempDir()
-	os.WriteFile(filepath.Join(a, "tool"), []byte("x"), 0o755)
-	os.WriteFile(filepath.Join(b, "tool"), []byte("x"), 0o755)
-	os.Symlink(filepath.Join(a, "tool"), filepath.Join(b, "same")) // alias of a/tool
-	os.Symlink(filepath.Join(a, "tool"), filepath.Join(a, "alias"))
-	os.Symlink(filepath.Join(a, "gone"), filepath.Join(a, "broken"))
-	os.Mkdir(filepath.Join(a, "subdir"), 0o755)
+	must(t, os.WriteFile(filepath.Join(a, "tool"), []byte("x"), 0o755))
+	must(t, os.WriteFile(filepath.Join(b, "tool"), []byte("x"), 0o755))
+	must(t, os.Symlink(filepath.Join(a, "tool"), filepath.Join(b, "same"))) // alias of a/tool
+	must(t, os.Symlink(filepath.Join(a, "tool"), filepath.Join(a, "alias")))
+	must(t, os.Symlink(filepath.Join(a, "gone"), filepath.Join(a, "broken")))
+	must(t, os.Mkdir(filepath.Join(a, "subdir"), 0o755))
 
 	got := map[string]Tool{}
 	for _, tl := range Scan([]string{a, b}) {
@@ -70,10 +70,17 @@ func TestPathDirs(t *testing.T) {
 
 func TestExtraDirs(t *testing.T) {
 	home := t.TempDir()
-	os.MkdirAll(filepath.Join(home, ".cargo/bin"), 0o755)
-	os.MkdirAll(filepath.Join(home, "go/bin"), 0o755)
+	must(t, os.MkdirAll(filepath.Join(home, ".cargo/bin"), 0o755))
+	must(t, os.MkdirAll(filepath.Join(home, "go/bin"), 0o755))
 	got := ExtraDirs(home, []string{filepath.Join(home, "go/bin")})
 	if len(got) != 1 || got[0] != filepath.Join(home, ".cargo/bin") {
 		t.Errorf("got %v", got)
+	}
+}
+
+func must(t *testing.T, err error) {
+	t.Helper()
+	if err != nil {
+		t.Fatal(err)
 	}
 }
