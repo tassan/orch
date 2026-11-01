@@ -6,8 +6,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versio
 ## [Unreleased]
 
 ## [0.1.4] - 2026-10-31
+
 ### Added
 - `orch update [--dry-run] [-y]`: upgrades orch through the package manager that owns it (Homebrew).
+
+### Changed
+- Bump `spf13/pflag` to v1.0.10.
 
 ## [0.1.3] - 2026-10-25
 
