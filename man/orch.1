@@ -13,6 +13,9 @@ orch \- inspect and uninstall command-line tools
 .IR command | package
 [\fB\-\-dry\-run\fR] [\fB\-y\fR | \fB\-\-yes\fR]
 .br
+.B orch update
+[\fB\-\-dry\-run\fR] [\fB\-y\fR | \fB\-\-yes\fR]
+.br
 .B orch history
 [\fB\-n\fR \fIN\fR] [\fB\-\-json\fR] [\fB\-\-file\fR \fIpath\fR]
 .I command
@@ -85,6 +88,12 @@ Print the command and exit without running it.
 .BR \-y ", " \-\-yes
 Skip the confirmation prompt.
 .RE
+.TP
+\fBupdate\fR
+Upgrade orch through the package manager that owns the running binary (\fBbrew upgrade\fR for a Homebrew install). orch never replaces its own binary; if no package manager that can upgrade owns it, the command fails and changes nothing. Takes
+.B \-\-dry\-run
+and
+.BR \-y .
 .TP
 \fBhistory\fR \fIcommand\fR [\fIargs\fR...]
 Show past calls of a command from shell history, oldest first. With

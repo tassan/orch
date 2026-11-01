@@ -75,6 +75,7 @@ orch list [--native|--user] [--all] [--json]       # tools on PATH, with kind an
 orch info <name> [--json] [--no-run]               # path, kind, owner, shadows, version, description
 orch uninstall <command|package> [--dry-run] [-y]  # via the owning package manager
 orch history [-n N] [--json] <command> [args...]   # past calls of a command, from your shell history
+orch update [--dry-run] [-y]                       # upgrade orch via the package manager that owns it (brew)
 orch --version
 ```
 

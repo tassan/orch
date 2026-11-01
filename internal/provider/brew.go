@@ -153,3 +153,10 @@ func (*Brew) UninstallCmd(p Package) *exec.Cmd {
 	}
 	return exec.Command("brew", "uninstall", "--formula", p.Name)
 }
+
+func (*Brew) UpgradeCmd(p Package) *exec.Cmd {
+	if p.Cask {
+		return exec.Command("brew", "upgrade", "--cask", p.Name)
+	}
+	return exec.Command("brew", "upgrade", "--formula", p.Name)
+}

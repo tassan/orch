@@ -82,3 +82,8 @@ func lookPath(bin string) bool {
 
 // Display renders a command for dry-run output.
 func Display(c *exec.Cmd) string { return strings.Join(c.Args, " ") }
+
+// Upgrader is implemented by providers that can upgrade a package in place.
+type Upgrader interface {
+	UpgradeCmd(p Package) *exec.Cmd
+}

@@ -268,3 +268,46 @@ func TestHistoryFileFlag(t *testing.T) {
 		t.Errorf("err=%v out=%s", err, out)
 	}
 }
+
+type upgrader struct{ fake }
+
+func (upgrader) UpgradeCmd(p provider.Package) *exec.Cmd {
+	return exec.Command("fake-upgrade", p.Name)
+}
+
+func TestUpdateDryRun(t *testing.T) {
+	setup(t)
+	pkg := provider.Package{Provider: "fake", Name: "orch"}
+	providers = []provider.Provider{upgrader{fake{owners: map[string]provider.Package{"orch": pkg}}}}
+	selfPath = func() (string, error) { return "/x/orch", nil }
+	t.Cleanup(func() { selfPath = os.Executable })
+	out, err := run("update", "--dry-run")
+	if err != nil || !strings.Contains(out, "would run: fake-upgrade orch") {
+		t.Fatalf("err=%v out=%q", err, out)
+	}
+}
+
+func TestUpdateAbortsWithoutYes(t *testing.T) {
+	setup(t)
+	pkg := provider.Package{Provider: "fake", Name: "orch"}
+	providers = []provider.Provider{upgrader{fake{owners: map[string]provider.Package{"orch": pkg}}}}
+	selfPath = func() (string, error) { return "/x/orch", nil }
+	t.Cleanup(func() { selfPath = os.Executable })
+	if _, err := run("update"); err == nil || !strings.Contains(err.Error(), "aborted") {
+		t.Fatalf("err=%v", err)
+	}
+}
+
+func TestUpdateRefusals(t *testing.T) {
+	setup(t)
+	selfPath = func() (string, error) { return "/x/orch", nil }
+	t.Cleanup(func() { selfPath = os.Executable })
+	if _, err := run("update"); err == nil || !strings.Contains(err.Error(), "not owned") {
+		t.Fatalf("unowned: err=%v", err)
+	}
+	pkg := provider.Package{Provider: "fake", Name: "orch"}
+	providers = []provider.Provider{fake{owners: map[string]provider.Package{"orch": pkg}}}
+	if _, err := run("update"); err == nil || !strings.Contains(err.Error(), "cannot upgrade") {
+		t.Fatalf("no upgrader: err=%v", err)
+	}
+}

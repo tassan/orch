@@ -27,6 +27,7 @@ Pipeline: `scan` (PATH walk, records `Shadows`) -> `classify` (native/user + sou
 - Providers: brew, cargo (`$CARGO_HOME/.crates2.json`), npm (`/lib/node_modules/<pkg>`), pipx (`/pipx/venvs/<pkg>`). Go has no uninstall command, so it has no provider. Owner order in `All()` matters: brew claims `/Cellar/` paths first.
 - Brew ownership: formula from `.../Cellar/<formula>/...`; cask from `/Caskroom/<token>/` or from the `.app` bundle in the path, matched against `brew info --cask --json=v2 --installed` (loaded lazily, once, about 0.5s).
 - `history` (`internal/history`): parses zsh (extended, multiline, meta-escaped), bash (plain and `#ts`) and fish history; `Match` tokenizes a line (quotes, `| && ; ( )`) and checks each segment's first word after env assignments and wrappers. Independent of the inventory/provider code. `history.Flags().SetInterspersed(false)` so args after the command are not parsed as orch flags.
+- `update` finds the package owning the running binary (`os.Executable`, symlinks resolved) and runs the provider's `UpgradeCmd` (optional `provider.Upgrader`, brew only). It never replaces its own binary; unowned installs get an error.
 - `uninstall` resolves its argument as a PATH command first, then as an installed package name, and lists the other PATH commands the package provides before confirming.
 
 ## Release

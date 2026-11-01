@@ -5,6 +5,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versio
 
 ## [Unreleased]
 
+### Added
+- `orch update [--dry-run] [-y]`: upgrades orch through the package manager that owns it (Homebrew).
+
 ## [0.1.3] - 2026-10-25
 
 ### Changed
